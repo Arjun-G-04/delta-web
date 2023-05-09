@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
 * {
     padding: 0;
     margin: 0;
@@ -12,6 +14,19 @@
     align-items: center;
 }
 
+#scoreBox {
+    position: absolute ;
+    top: 20px ;
+    right: 20px ;
+    color: white;
+    font-size: 26px;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to right, rgb(255, 1, 251), purple);
+    padding: 3px;
+    border: 2px solid white;
+    border-radius: 8px;
+}
+
 #board {
     background: linear-gradient(to right, rgb(170, 18, 114), rgb(121, 23, 232));
     width: 90vmin;
@@ -23,9 +38,21 @@
 }
 
 .head {
-    background-color: red;
+    background-color: rgb(33, 160, 35) ;
+    border: .25vmin solid black ;
+    border-radius: 8px;
+    transform: scale(1.03);
+}
+
+.snake {
+    background-color: red ;
+    border: .25vmin solid black ;
+    border-radius: 16px;
+
 }
 
 .food {
-    background-color: orange;
+    background-color: orange ;
+    border: .25vmin soild black ;
+    border-radius: 8px ;
 }
