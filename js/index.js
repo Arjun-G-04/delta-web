@@ -7,6 +7,8 @@ let snake = [{x: 13, y: 15}, {x:14, y:15}, {x:15, y:15}] ;
 let food = {x: 5, y: 10} ;
 let hiScore = 0 ;
 let foods = genFood() ;
+let time = 30 ;
+let intervalId = null ;
 
 // Game sequence (regulate frame rate)
 function main(ctime) {
@@ -40,49 +42,74 @@ function isCollide(snakeArr) {
 }
 
 function genFood() {
-    genFoods = [] ;
-    colours = ["red", "yellow", "green", "blue", "cyan"] ;
+    normFoods = [] ;
+    colours = ["grey", "yellow", "pink", "blue", "cyan"] ;
     let a = 1 ;
     let b = 20 ;
     let i = 0 ;
     while (true) {
         loc = {x: Math.round(a+(b-a)*Math.random()), y: Math.round(a+(b-a)*Math.random())} ;
-        if (!genFoods.includes(loc) && !snake.includes(loc)) {
+        if (normFoods.includes(loc) || snake.includes(loc)) {
+            // Do nothing
+        } else {
             loc['colour'] = colours[i] ;
-            genFoods.push(loc) ;
+            normFoods.push(loc) ;
             i++ ;
         }
         if (i === 5) {
             break ;
         }
     }
+    genFoods = normFoods.sort(() => Math.random() - 0.5) ;
     return genFoods ;
 }
 
-function randomOrder() {
-    let normOrder = [0, 1, 2, 3, 4] ;
-    randOrder = normOrder.sort(() => Math.random() - 0.5) ;
-    return randOrder ;
-}
+function updateTimer() {
+    time-- ;
+    timer.innerHTML="Time Left: " + time ;
+} 
 
 // Game Engine: Renders after taking input and evaluating under game rules
 function gameEngine() {
 
-    // Game over condition
-    if (isCollide(snake)) {
+    // Game over conditions
+    if (isCollide(snake) || time == 0) {
         alert("Game Over!") ;
         direction = {x: 0, y: 0} ;
         snake = [{x: 13, y: 15}, {x:14, y:15}, {x:15, y:15}] ;
         score = 0 ;
+        clearInterval(intervalId) ;
+        intervalId = null ;
+        time = 30 ;
+        foods = genFood() ;
         scoreBox.innerHTML="Score: " + score ;
+        timer.innerHTML="Time Left: " + time ;
     }
 
-    // If ate food, increase score, regenerate food
-    if (food.x === snake[0].x && food.y === snake[0].y) {
-        let a = 1 ;
-        let b = 18 ;
-        food = {x: Math.round(a+(b-a)*Math.random()), y: Math.round(a+(b-a)*Math.random())} ;
-        score++ ;
+    // If ate all food, add extra score, add time, generate new food
+    if (foods.length === 0) {
+        foods = genFood() ;
+        score += 5 ;
+        scoreBox.innerHTML="Score: " + score ;
+        time += 15 ;
+        if (score > hiScore) {
+            localStorage.setItem("hiScore", JSON.stringify(score)) ;
+        }
+    }
+
+
+    // If ate correct food, increase score, else decrease score and regenerate food
+    for (let i = 0 ; i < foods.length ; i++) {
+        food = foods[i] ;
+        if (food.x === snake[0].x && food.y === snake[0].y) {
+            if (i == 0) {
+                foods.splice(0, 1) ;
+                score++ ;
+            } else {
+                foods = genFood() ;
+                score-- ;
+            }
+        }
         if (score > hiScore) {
             localStorage.setItem("hiScore", JSON.stringify(score)) ;
         }
@@ -112,7 +139,6 @@ function gameEngine() {
     });
 
     // Display food
-
     for (let i = 0 ; i < foods.length ; i++) {
         food = foods[i] ;
         foodElement = document.createElement('div') ;
@@ -121,6 +147,16 @@ function gameEngine() {
         foodElement.style.gridRowStart = food.y ;
         foodElement.style.gridColumnStart = food.x ;
         board.appendChild(foodElement) ;
+    }
+
+    // Display sequence
+    sequence.innerHTML = "<div id=\"seqText\">Sequence: </div>" ;
+    for (let i = 0 ; i < foods.length ; i++) {
+        food = foods[i] ;
+        blockElement = document.createElement('div') ;
+        blockElement.classList.add("block") ;
+        blockElement.style.backgroundColor = food["colour"] ;
+        sequence.appendChild(blockElement) ;
     }
 
     // Update High Score
@@ -137,8 +173,13 @@ function gameEngine() {
 // Process the input
 window.requestAnimationFrame(main) ;
 window.addEventListener('keydown', e => {
-    direction = {x:0, y:1} ; // Starting the game
+    // Starting the game
+    direction = {x:0, y:1} ; 
+    if (intervalId === null) {
+        intervalId = setInterval(updateTimer, 1000) ;
+    }
 
+    // Processing inputs
     switch (e.key) {
         case "ArrowUp":
             direction = {x:0, y:-1} ; 
@@ -157,3 +198,51 @@ window.addEventListener('keydown', e => {
             break ;
     }
 }) ;
+
+// Variables to track touch movement
+let touchStartX = 0 ;
+let touchStartY = 0 ;
+let touchEndX = 0 ;
+let touchEndY = 0 ;
+
+// Adding event listeners for touch events
+window.addEventListener('touchstart', handleTouchStart) ;
+window.addEventListener('touchmove', handleTouchMove) ;
+window.addEventListener('touchend', handleTouchEnd) ;
+
+// Function to handle touch start event
+function handleTouchStart(event) {
+    touchStartX = event.touches[0].clientX ;
+    touchStartY = event.touches[0].clientY ;
+}
+
+// Function to handle touch move event
+function handleTouchMove(event) {
+    touchEndX = event.touches[0].clientX ;
+    touchEndY = event.touches[0].clientY ;
+}
+
+// Function to handle touch end event
+function handleTouchEnd(event) {
+    const diffX = touchStartX - touchEndX ;
+    const diffY = touchStartY - touchEndY ;
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+        if (diffX > 0) { // Swipe left
+            direction = {x:-1, y:0} ;
+        } else { // Swipe right
+            direction = {x:1, y:0} ;
+        }
+    } else { 
+        if (diffY > 0) { // Swipe up
+            direction = {x:0, y:-1} ;
+        } else { // Swipe down
+            direction = {x:0, y:1} ;
+        }
+    }
+    event.preventDefault();
+}
+
+// Prevent scrolling
+window.addEventListener('scroll', e => {
+    e.preventDefault();
+}, { passive: false });

@@ -5,7 +5,7 @@
     margin: 0;
 }
 
-.body {
+#body {
     background: url("../assets/bg.jpg");
     min-height: 100vh;
     background-size: auto;
@@ -20,6 +20,19 @@
     position: absolute ;
     top: 20px ;
     right: 20px ;
+    color: white;
+    font-size: 26px;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to right, rgb(255, 1, 251), purple);
+    padding: 4px;
+    border: 2px solid white;
+    border-radius: 8px;
+}
+
+#timer {
+    position: absolute ;
+    top: 20px ;
+    left: 20px ;
     color: white;
     font-size: 26px;
     font-family: 'Poppins', sans-serif;
@@ -70,7 +83,7 @@
     align-self: center;
 }
 
-#block {
+.block {
     background-color: white;
     border: .25vmin soild black ;
     border-radius: 8px ;
