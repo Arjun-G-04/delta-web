@@ -1,6 +1,6 @@
 // Declaring all variables
 let direction = {x: 0, y: 0} ;
-let speed = 5 ; // fps
+let speed = 10 ; // fps
 let score = 0 ;
 let lastPaintTime = 0 ;
 let snake = [{x: 13, y: 15}, {x:14, y:15}, {x:15, y:15}] ;
@@ -9,6 +9,10 @@ let hiScore = 0 ;
 let foods = genFood() ;
 let time = 30 ;
 let intervalId = null ;
+let pointAudio = new Audio('../assets/ateFood.mp3') ;
+let seqAudio = new Audio('../assets/ateSeq.mp3') ;
+let gameOver = new Audio('../assets/gameOver.mp3') ;
+let wrongFood = new Audio('../assets/wrongFood.mp3') ;
 
 // Game sequence (regulate frame rate)
 function main(ctime) {
@@ -41,6 +45,21 @@ function isCollide(snakeArr) {
     return false ;
 }
 
+function doesItContain(list, dict) {
+    let cond = false ;
+    for (i = 0 ; i < list.length ; i++) {
+        listDict = list[i] ;
+        if (listDict.x === dict.x && listDict.y === dict.y) {
+            cond = true ;
+        }
+    }
+    if (cond === false) {
+        return false ;
+    } else {
+        return true ;
+    }
+}
+
 function genFood() {
     normFoods = [] ;
     colours = ["grey", "yellow", "pink", "blue", "cyan"] ;
@@ -49,16 +68,19 @@ function genFood() {
     let i = 0 ;
     while (true) {
         loc = {x: Math.round(a+(b-a)*Math.random()), y: Math.round(a+(b-a)*Math.random())} ;
-        if (normFoods.includes(loc) || snake.includes(loc)) {
+        console.log(normFoods.includes(loc), snake.includes(loc)) ;
+        if (doesItContain(normFoods, loc) || doesItContain(snake, loc)) {
             // Do nothing
         } else {
-            loc['colour'] = colours[i] ;
             normFoods.push(loc) ;
             i++ ;
         }
         if (i === 5) {
             break ;
         }
+    }
+    for (let i = 0 ; i < 5 ; i++) {
+        normFoods[i]['colour'] = colours[i] ;
     }
     genFoods = normFoods.sort(() => Math.random() - 0.5) ;
     return genFoods ;
@@ -74,6 +96,7 @@ function gameEngine() {
 
     // Game over conditions
     if (isCollide(snake) || time == 0) {
+        gameOver.play() ;
         alert("Game Over!") ;
         direction = {x: 0, y: 0} ;
         snake = [{x: 13, y: 15}, {x:14, y:15}, {x:15, y:15}] ;
@@ -92,6 +115,9 @@ function gameEngine() {
         score += 5 ;
         scoreBox.innerHTML="Score: " + score ;
         time += 15 ;
+        seqAudio.pause() ;
+        seqAudio.currentTime = 0 ;
+        seqAudio.play() ;
         if (score > hiScore) {
             localStorage.setItem("hiScore", JSON.stringify(score)) ;
         }
@@ -103,9 +129,15 @@ function gameEngine() {
         food = foods[i] ;
         if (food.x === snake[0].x && food.y === snake[0].y) {
             if (i == 0) {
+                pointAudio.pause() ;
+                pointAudio.currentTime = 0 ;
+                pointAudio.play() ;
                 foods.splice(0, 1) ;
                 score++ ;
             } else {
+                wrongFood.pause() ;
+                wrongFood.currentTime = 0 ;
+                wrongFood.play() ;
                 foods = genFood() ;
                 score-- ;
             }
@@ -174,7 +206,6 @@ function gameEngine() {
 window.requestAnimationFrame(main) ;
 window.addEventListener('keydown', e => {
     // Starting the game
-    direction = {x:0, y:1} ; 
     if (intervalId === null) {
         intervalId = setInterval(updateTimer, 1000) ;
     }
@@ -182,20 +213,40 @@ window.addEventListener('keydown', e => {
     // Processing inputs
     switch (e.key) {
         case "ArrowUp":
-            direction = {x:0, y:-1} ; 
-            break ;
+            if (direction.x === 0 && direction.y === 1) {
+                direction = {x:0, y:1} ; 
+                break ;
+            } else {
+                direction = {x:0, y:-1} ; 
+                break ;
+            }
 
         case "ArrowDown":
-            direction = {x:0, y:1} ;
-            break ;
+            if (direction.x === 0 && direction.y === -1) {
+                direction = {x:0, y:-1} ; 
+                break ;
+            } else {
+                direction = {x:0, y:1} ; 
+                break ;
+            }
 
         case "ArrowLeft":
-            direction = {x:-1, y:0} ;
-            break ;
+            if (direction.x === 1 && direction.y === 0) {
+                direction = {x:1, y:0} ; 
+                break ;
+            } else {
+                direction = {x:-1, y:0} ; 
+                break ;
+            }
 
         case "ArrowRight":
-            direction = {x:1, y:0} ;
-            break ;
+            if (direction.x === -1 && direction.y === 0) {
+                direction = {x:-1, y:0} ; 
+                break ;
+            } else {
+                direction = {x:1, y:0} ; 
+                break ;
+            }
     }
 }) ;
 
@@ -205,10 +256,12 @@ let touchStartY = 0 ;
 let touchEndX = 0 ;
 let touchEndY = 0 ;
 
+element = document.getElementById("board") ;
+
 // Adding event listeners for touch events
-window.addEventListener('touchstart', handleTouchStart) ;
-window.addEventListener('touchmove', handleTouchMove) ;
-window.addEventListener('touchend', handleTouchEnd) ;
+element.addEventListener('touchstart', handleTouchStart) ;
+element.addEventListener('touchmove', handleTouchMove) ;
+element.addEventListener('touchend', handleTouchEnd) ;
 
 // Function to handle touch start event
 function handleTouchStart(event) {
@@ -220,29 +273,44 @@ function handleTouchStart(event) {
 function handleTouchMove(event) {
     touchEndX = event.touches[0].clientX ;
     touchEndY = event.touches[0].clientY ;
+    event.preventDefault(); // Very important :_( this prevents scrolling
 }
 
 // Function to handle touch end event
 function handleTouchEnd(event) {
     const diffX = touchStartX - touchEndX ;
     const diffY = touchStartY - touchEndY ;
+    if (intervalId === null) {
+        intervalId = setInterval(updateTimer, 1000) ;
+    }
     if (Math.abs(diffX) > Math.abs(diffY)) {
         if (diffX > 0) { // Swipe left
-            direction = {x:-1, y:0} ;
+            if (direction.x === 1 && direction.y === 0) {
+                direction = {x:1, y:0} ; 
+            } else {
+                direction = {x:-1, y:0} ; 
+            }
         } else { // Swipe right
-            direction = {x:1, y:0} ;
+            if (direction.x === -1 && direction.y === 0) {
+                direction = {x:-1, y:0} ; 
+            } else {
+                direction = {x:1, y:0} ; 
+            }
         }
     } else { 
         if (diffY > 0) { // Swipe up
-            direction = {x:0, y:-1} ;
+            if (direction.x === 0 && direction.y === 1) {
+                direction = {x:0, y:1} ; 
+            } else {
+                direction = {x:0, y:-1} ; 
+            }
         } else { // Swipe down
-            direction = {x:0, y:1} ;
+            if (direction.x === 0 && direction.y === -1) {
+                direction = {x:0, y:-1} ; 
+            } else {
+                direction = {x:0, y:1} ; 
+            }
         }
     }
     event.preventDefault();
 }
-
-// Prevent scrolling
-window.addEventListener('scroll', e => {
-    e.preventDefault();
-}, { passive: false });
