@@ -1,6 +1,6 @@
 // Declaring all variables
 let direction = {x: 0, y: 0} ;
-let speed = 10 ; // fps
+let speed = 5 ; // fps
 let score = 0 ;
 let lastPaintTime = 0 ;
 let snake = [{x: 13, y: 15}, {x:14, y:15}, {x:15, y:15}] ;
@@ -9,10 +9,10 @@ let hiScore = 0 ;
 let foods = genFood() ;
 let time = 30 ;
 let intervalId = null ;
-let pointAudio = new Audio('../assets/ateFood.mp3') ;
-let seqAudio = new Audio('../assets/ateSeq.mp3') ;
-let gameOver = new Audio('../assets/gameOver.mp3') ;
-let wrongFood = new Audio('../assets/wrongFood.mp3') ;
+let pointAudio = new Audio('https://arjun-g-04.github.io/delta-web/assets/ateFood.mp3') ;
+let seqAudio = new Audio('https://arjun-g-04.github.io/delta-web/assets/ateSeq.mp3') ;
+let gameOver = new Audio('https://arjun-g-04.github.io/delta-web/assets/gameOver.mp3') ;
+let wrongFood = new Audio('https://arjun-g-04.github.io/delta-web/assets/wrongFood.mp3') ;
 
 // Game sequence (regulate frame rate)
 function main(ctime) {
