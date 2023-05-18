@@ -1,8 +1,8 @@
 # Live Page
 https://arjun-g-04.github.io/delta-web/
 
-## Hacker Mode
-### Status: In Progress
+# Hacker Mode
+## Status: In Progress
 * ~Implement a lives system: when a snake dies, it loses a life. When all the lives are depleted, the game ends~
 * ~On completing a sequence of blocks, the snake grows in size~
 * ~If the snake eats itself, the game ends~
@@ -12,3 +12,4 @@ https://arjun-g-04.github.io/delta-web/
 * ~Implement sound on snake-eating word~
 * Implement variable grid size as per player request
 * Replace color blocks with letters and words to be eaten in the correct sequence
+* Pop up with instructions
