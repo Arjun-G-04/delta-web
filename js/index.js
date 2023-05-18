@@ -6,13 +6,19 @@ let lastPaintTime = 0 ;
 let snake = [{x: 13, y: 15}, {x:14, y:15}, {x:15, y:15}] ;
 let food = {x: 5, y: 10} ;
 let hiScore = 0 ;
+let powers = null ;
 let foods = genFood() ;
 let time = 30 ;
 let intervalId = null ;
 let pointAudio = new Audio('https://arjun-g-04.github.io/delta-web/assets/ateFood.mp3') ;
 let seqAudio = new Audio('https://arjun-g-04.github.io/delta-web/assets/ateSeq.mp3') ;
-let gameOver = new Audio('https://arjun-g-04.github.io/delta-web/assets/gameOver.mp3') ;
+let gameOver = new Audio('https://arjun-g-04.github.io/delta-web/assets/gameOver.wav') ;
 let wrongFood = new Audio('https://arjun-g-04.github.io/delta-web/assets/wrongFood.mp3') ;
+let alarm = new Audio('https://arjun-g-04.github.io/delta-web/assets/alarm.wav') ;
+let lives = 3 ;
+let startTime = null ;
+let endTime = null ;
+let timePassed = 0 ;
 
 // Game sequence (regulate frame rate)
 function main(ctime) {
@@ -68,12 +74,16 @@ function genFood() {
     let i = 0 ;
     while (true) {
         loc = {x: Math.round(a+(b-a)*Math.random()), y: Math.round(a+(b-a)*Math.random())} ;
-        console.log(normFoods.includes(loc), snake.includes(loc)) ;
         if (doesItContain(normFoods, loc) || doesItContain(snake, loc)) {
             // Do nothing
         } else {
-            normFoods.push(loc) ;
-            i++ ;
+            if (powers === null) {
+                normFoods.push(loc) ;
+                i++ ;
+            } else if (!doesItContain(powers, loc)) {
+                normFoods.push(loc) ;
+                i++ ;
+            }
         }
         if (i === 5) {
             break ;
@@ -86,29 +96,120 @@ function genFood() {
     return genFoods ;
 }
 
+function genPower() {
+    let genPowers = [] ;
+    let a = 1 ;
+    let b = 20 ;
+    let types = ["shrink", "slow"] ;
+    let numOfPowers = Math.floor(1 + 3*Math.random()) ;
+    for (let i = 0 ; i < numOfPowers ; i++) {
+        while (true) {
+            loc = {x: Math.round(a+(b-a)*Math.random()), y: Math.round(a+(b-a)*Math.random())} ;
+            if (doesItContain(normFoods, loc) || doesItContain(snake, loc) || doesItContain(genPowers, loc)) {
+                // Do nothing
+            } else {
+                loc["type"] = types[Math.floor(2*Math.random())] ;
+                genPowers.push(loc) ;
+                break ;
+            }
+        }
+    }
+    return genPowers ;
+}
+
 function updateTimer() {
     time-- ;
     timer.innerHTML="Time Left: " + time ;
+
+    if (time === 10) {
+        alarm.play() ;
+    }
+
+    if (time > 10 || time === 0) {
+        alarm.pause() ; 
+        alarm.currentTime = 0 ;
+    }
+
+    // Increase speed
+    if (startTime != null) {
+        endTime =  new Date() ;
+        timePassed = Math.floor((endTime - startTime)/1000) ;
+        if (timePassed % 20 === 0 && timePassed != 0) {
+            speed += 1 ;
+        }
+    }
+
+    // Generate power ups
+    if (Math.random() > 0.75 && powers === null) {
+        powers = genPower() ;
+    }
+
 } 
 
 // Game Engine: Renders after taking input and evaluating under game rules
 function gameEngine() {
 
     // Game over conditions
-    if (isCollide(snake) || time == 0) {
-        gameOver.play() ;
-        alert("Game Over!") ;
-        direction = {x: 0, y: 0} ;
-        snake = [{x: 13, y: 15}, {x:14, y:15}, {x:15, y:15}] ;
-        score = 0 ;
-        clearInterval(intervalId) ;
-        intervalId = null ;
-        time = 30 ;
-        foods = genFood() ;
-        scoreBox.innerHTML="Score: " + score ;
-        timer.innerHTML="Time Left: " + time ;
+    if (isCollide(snake) || time === 0) {
+        lives-- ;
+        if (lives > 0) {
+            alarm.pause() ; 
+            alarm.currentTime = 0 ;
+            alert("You have " + lives + " lives left!") ;
+            direction = {x: 0, y: 0} ;
+            snake = [{x: 13, y: 15}, {x:14, y:15}, {x:15, y:15}] ;
+            clearInterval(intervalId) ;
+            intervalId = null ;
+            time = 30 ;
+            startTime = null ;
+            powers = null ;
+            speed = 5 ;
+            foods = genFood() ;
+            timer.innerHTML="Time Left: " + time ;
+        } else {
+            alarm.pause() ; 
+            alarm.currentTime = 0 ;
+            gameOver.play() ;
+            direction = {x: 0, y: 0} ;
+            snake = [{x: 13, y: 15}, {x:14, y:15}, {x:15, y:15}] ;
+            score = 0 ;
+            clearInterval(intervalId) ;
+            intervalId = null ;
+            startTime = null ;
+            speed = 5 ;
+            time = 30 ;
+            foods = genFood() ;
+            powers = null ;
+            scoreBox.innerHTML="Score: " + score ;
+            timer.innerHTML="Time Left: " + time ;
+            lives = 3 ;
+            alert("Game Over!") ;
+        }
     }
 
+    // Process power up
+    if (powers != null) {
+        if (powers.length === 0) {
+            powers = null ;
+        } else {
+            for (let i = 0 ; i < powers.length ; i++) {
+                power = powers[i] ;
+                if (power.x === snake[0].x && power.y === snake[0].y) {
+                    if (power['type'] === 'shrink') {
+                        if ((snake.length - 1) >= 3) {
+                            snake.splice((snake.length - 1), 1) ;
+                        }
+                    } else {
+                        if (speed - 2 >= 5) {
+                            speed -= 2 ;
+                        }
+                    }
+                    powers.splice(i, 1) ;
+                }
+            }
+        }
+    }
+    
     // If ate all food, add extra score, add time, generate new food
     if (foods.length === 0) {
         foods = genFood() ;
@@ -121,10 +222,11 @@ function gameEngine() {
         if (score > hiScore) {
             localStorage.setItem("hiScore", JSON.stringify(score)) ;
         }
+        snake.unshift({x: snake[0].x + direction.x, y: snake[0].y + direction.y}) ;
     }
 
 
-    // If ate correct food, increase score, else decrease score and regenerate food
+    // If ate correct food, increase score and size, else decrease score and regenerate food
     for (let i = 0 ; i < foods.length ; i++) {
         food = foods[i] ;
         if (food.x === snake[0].x && food.y === snake[0].y) {
@@ -181,14 +283,39 @@ function gameEngine() {
         board.appendChild(foodElement) ;
     }
 
-    // Display sequence
-    sequence.innerHTML = "<div id=\"seqText\">Sequence: </div>" ;
+    // Display powerups
+    if (powers != null) {
+        for (let i = 0 ; i < powers.length ; i++) {
+            power = powers[i] ;
+            powerElement = document.createElement('div') ;
+            powerElement.classList.add('powerUp') ;
+            powerElement.style.gridRowStart = power.y ;
+            powerElement.style.gridColumnStart = power.x ;
+            powerElement.style.backgroundImage = "url('../assets/" + power['type'] + ".png')" ; ;
+            board.appendChild(powerElement) ;
+        }
+    }
+
+    // Display block sequence
+    sequence.innerHTML = "<div class=\"seqText\">Sequence: </div>" ;
     for (let i = 0 ; i < foods.length ; i++) {
         food = foods[i] ;
         blockElement = document.createElement('div') ;
         blockElement.classList.add("block") ;
         blockElement.style.backgroundColor = food["colour"] ;
         sequence.appendChild(blockElement) ;
+    }
+
+    // Display Lives
+    livesElement = document.createElement('div') ;
+    livesElement.textContent = "Lives: " ;
+    livesElement.classList.add("seqText") ;
+    livesElement.style.marginLeft = "auto" ;
+    sequence.appendChild(livesElement) ;
+    for (let i = 0 ; i < lives ; i++) {
+        heartElement = document.createElement("div") ;
+        heartElement.classList.add("heart") ;
+        sequence.appendChild(heartElement) ;
     }
 
     // Update High Score
@@ -208,6 +335,7 @@ window.addEventListener('keydown', e => {
     // Starting the game
     if (intervalId === null) {
         intervalId = setInterval(updateTimer, 1000) ;
+        startTime = new Date() ;
     }
 
     // Processing inputs
@@ -282,6 +410,7 @@ function handleTouchEnd(event) {
     const diffY = touchStartY - touchEndY ;
     if (intervalId === null) {
         intervalId = setInterval(updateTimer, 1000) ;
+        startTime = new Date() ;
     }
     if (Math.abs(diffX) > Math.abs(diffY)) {
         if (diffX > 0) { // Swipe left

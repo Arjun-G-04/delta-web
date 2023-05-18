@@ -73,11 +73,11 @@
     padding: 1vmin;
     border: 2px solid white;
     display: flex;
-    flex-flow: row nowrap;
+    flex-direction: row;
     gap: 1vmin;
 }
 
-#seqText {
+.seqText {
     color: white;
     font-family: 'Poppins', sans-serif;
     font-size: 95%;
@@ -89,7 +89,6 @@
     border: .25vmin soild black ;
     border-radius: 8px ;
     flex-basis: 5vmin;
-
 }
 
 .head {
@@ -110,4 +109,15 @@
     background-color: orange ;
     border: .25vmin soild black ;
     border-radius: 8px ;
+}
+
+.powerUp {
+    background-size: cover;
+    filter: invert(100%) ;
+}
+
+.heart {
+    background-image: url("../assets/heart.png");
+    background-size: cover;
+    flex-basis: 5vmin;
 }
