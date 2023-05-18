@@ -19,6 +19,9 @@ let lives = 3 ;
 let startTime = null ;
 let endTime = null ;
 let timePassed = 0 ;
+let pauseButton = document.getElementById('pause') ;
+pauseButton.style.display = "none" ;
+savedDirection = direction ;
 
 // Game sequence (regulate frame rate)
 function main(ctime) {
@@ -166,6 +169,7 @@ function gameEngine() {
             speed = 5 ;
             foods = genFood() ;
             timer.innerHTML="Time Left: " + time ;
+            pauseButton.style.display = "none" ;
         } else {
             alarm.pause() ; 
             alarm.currentTime = 0 ;
@@ -183,6 +187,7 @@ function gameEngine() {
             scoreBox.innerHTML="Score: " + score ;
             timer.innerHTML="Time Left: " + time ;
             lives = 3 ;
+            pauseButton.style.display = "none" ;
             alert("Game Over!") ;
         }
     }
@@ -331,11 +336,26 @@ function gameEngine() {
 
 // Process the input
 window.requestAnimationFrame(main) ;
+pauseButton.addEventListener('click', e => {
+    if (intervalId === null) {
+        direction = savedDirection ;
+        intervalId = setInterval(updateTimer, 1000) ;
+        pauseButton.innerHTML = "Pause" ;
+    } else {
+        savedDirection = direction ; 
+        direction = {x:0, y:0} ;
+        clearInterval(intervalId) ;
+        intervalId = null ;
+        pauseButton.innerHTML = "Play" ;
+    }
+}) ;
 window.addEventListener('keydown', e => {
     // Starting the game
     if (intervalId === null) {
         intervalId = setInterval(updateTimer, 1000) ;
         startTime = new Date() ;
+        pauseButton.style.display = "block" ;
+        pauseButton.innerHTML = "Pause" ;
     }
 
     // Processing inputs

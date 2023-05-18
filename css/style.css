@@ -43,6 +43,21 @@
     border-radius: 8px;
 }
 
+.pause {
+    position: absolute ;
+    top: 80px ;
+    left: 20px ;
+    color: white;
+    font-size: 26px;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to right, rgb(255, 1, 251), purple);
+    padding: 4px;
+    border: 2px solid white;
+    border-radius: 8px;
+    cursor: pointer;
+    display: block;
+}
+
 #highScore {
     position: absolute ;
     top: 80px ;
