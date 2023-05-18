@@ -17,7 +17,7 @@ https://arjun-g-04.github.io/delta-web/
 * ~Implement a leaderboard system using local storage~
 
 ## Hacker Mode
-### Status: Yet to begin
+### Status: In Progress
 * ~Implement a lives system: when a snake dies, it loses a life. When all the lives are depleted, the game ends~
 * ~On completing a sequence of blocks, the snake grows in size~
 * ~If the snake eats itself, the game ends~
