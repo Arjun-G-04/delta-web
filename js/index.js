@@ -291,7 +291,7 @@ function gameEngine() {
             powerElement.classList.add('powerUp') ;
             powerElement.style.gridRowStart = power.y ;
             powerElement.style.gridColumnStart = power.x ;
-            powerElement.style.backgroundImage = "url('https://arjun-g-04.github.io/delta-web/assets/" + power['type'] + ".png')" ; ;
+            powerElement.style.backgroundImage = "url('https:\/\/arjun-g-04.github.io\/delta-web\/assets\/" + power['type'] + ".png')" ; ;
             board.appendChild(powerElement) ;
         }
     }
