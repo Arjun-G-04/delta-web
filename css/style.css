@@ -71,6 +71,24 @@
     border-radius: 8px;
 }
 
+#gridSelection {
+    position: absolute ;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: row nowrap ;
+    gap: 5px ;
+    top: 140px ;
+    right: 20px ;
+    color: white;
+    font-size: 26px;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to right, rgb(255, 1, 251), purple);
+    padding: 4px;
+    border: 2px solid white;
+    border-radius: 8px;
+}
+
 #board {
     background: linear-gradient(to right, rgb(170, 18, 114), rgb(121, 23, 232));
     width: 85vmin;
@@ -135,4 +153,12 @@
     background-image: url("../assets/heart.png");
     background-size: cover;
     flex-basis: 5vmin;
+}
+
+#gridSize {
+    font-size: 26px;
+    font-family: 'Poppins', sans-serif;
+    background-color: transparent;
+    color: white;
+    border: 0px;
 }

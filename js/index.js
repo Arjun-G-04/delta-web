@@ -1,10 +1,10 @@
 // Declaring all variables
+let gridSize = 20 ;
 let direction = {x: 0, y: 0} ;
 let speed = 5 ; // fps
 let score = 0 ;
 let lastPaintTime = 0 ;
 let snake = [{x: 13, y: 15}, {x:14, y:15}, {x:15, y:15}] ;
-let food = {x: 5, y: 10} ;
 let hiScore = 0 ;
 let powers = null ;
 let foods = genFood() ;
@@ -22,6 +22,9 @@ let timePassed = 0 ;
 let pauseButton = document.getElementById('pause') ;
 pauseButton.style.display = "none" ;
 savedDirection = direction ;
+let gridSelection = document.getElementById('gridSelection') ;
+gridSelection.style.display = "none" ;
+let validKeys = ["ArrowUp", "ArrowDown", "ArrowRight", "ArrowLeft"] ;
 
 // Game sequence (regulate frame rate)
 function main(ctime) {
@@ -44,10 +47,10 @@ function isCollide(snakeArr) {
     }
 
     // If moves past walls
-    if (snake[0].x < 1 || snake[0].x > 20) {
+    if (snake[0].x < 1 || snake[0].x > gridSize) {
         return true ;
     }
-    if (snake[0].y < 1 || snake[0].y > 20) {
+    if (snake[0].y < 1 || snake[0].y > gridSize) {
         return true ;
     }
 
@@ -73,7 +76,7 @@ function genFood() {
     normFoods = [] ;
     colours = ["grey", "yellow", "pink", "blue", "cyan"] ;
     let a = 1 ;
-    let b = 20 ;
+    let b = gridSize ;
     let i = 0 ;
     while (true) {
         loc = {x: Math.round(a+(b-a)*Math.random()), y: Math.round(a+(b-a)*Math.random())} ;
@@ -102,7 +105,7 @@ function genFood() {
 function genPower() {
     let genPowers = [] ;
     let a = 1 ;
-    let b = 20 ;
+    let b = gridSize ;
     let types = ["shrink", "slow"] ;
     let numOfPowers = Math.floor(1 + 3*Math.random()) ;
     for (let i = 0 ; i < numOfPowers ; i++) {
@@ -332,6 +335,23 @@ function gameEngine() {
         hiScore = JSON.parse(hiScoreData) ;
         highScore.innerHTML = "HiScore: " + hiScore ;
     }
+
+    // Set grid size
+    if (lives === 3 && intervalId === null && pauseButton.innerHTML != "Play") {
+        gridSelection.style.display = "flex" ;
+        board = document.getElementById("board") ;
+        input = document.getElementById("gridSize") ;
+        newGridSize = parseInt(input.value) ;
+        board.style.gridTemplateRows = "repeat(" + newGridSize + ", 1fr)" ;
+        board.style.gridTemplateColumns = "repeat(" + newGridSize + ", 1fr)" ;
+        if (gridSize != newGridSize) {
+            gridSize = newGridSize ;
+            foods = genFood() ;
+        }
+
+    } else {
+        gridSelection.style.display = "none" ;
+    }
 }
 
 // Process the input
@@ -351,7 +371,8 @@ pauseButton.addEventListener('click', e => {
 }) ;
 window.addEventListener('keydown', e => {
     // Starting the game
-    if (intervalId === null) {
+    
+    if (intervalId === null && validKeys.includes(e.key)) {
         intervalId = setInterval(updateTimer, 1000) ;
         startTime = new Date() ;
         pauseButton.style.display = "block" ;
