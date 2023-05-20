@@ -11,5 +11,5 @@ https://arjun-g-04.github.io/delta-web/
 * ~Implement a pause button~
 * ~Implement sound on snake-eating word~
 * ~Implement variable grid size as per player request~
-* Replace color blocks with letters and words to be eaten in the correct sequence
-* Pop up with instructions
+* ~Replace color blocks with letters and words to be eaten in the correct sequence~
+* ~Pop up with instructions~

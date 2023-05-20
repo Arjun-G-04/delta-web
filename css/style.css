@@ -117,11 +117,13 @@
     align-self: center;
 }
 
-.block {
-    background-color: white;
-    border: .25vmin soild black ;
-    border-radius: 8px ;
-    flex-basis: 5vmin;
+.word {
+    flex-basis: 10vmin;
+    color: yellow;
+    font-weight: bold;
+    font-family: 'Poppins', sans-serif;
+    font-size: 95%;
+    align-self: center;
 }
 
 .head {
@@ -139,9 +141,11 @@
 }
 
 .food {
-    background-color: orange ;
-    border: .25vmin soild black ;
-    border-radius: 8px ;
+    color: yellow;
+    margin-left: auto;
+    margin-right: auto;
+    font-weight: bold;
+    font-family: 'Poppins', sans-serif;
 }
 
 .powerUp {
@@ -161,4 +165,20 @@
     background-color: transparent;
     color: white;
     border: 0px;
+}
+
+#popUp {
+    position: absolute;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    flex-flow: column wrap;
+    gap: 10px;
+    top: 100px;
+    width: 50vmin;
+    height: 60vmin;
+    padding: 3vmin;
+    border: 2px solid white;
+    color: white;
+    background: linear-gradient(to right, rgb(44, 127, 2), rgb(4, 166, 120));
+    border-radius: 8px;
 }
