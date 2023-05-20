@@ -7,7 +7,6 @@ let lastPaintTime = 0 ;
 let snake = [{x: 13, y: 15}, {x:14, y:15}, {x:15, y:15}] ;
 let hiScore = 0 ;
 let powers = null ;
-let foods = genFood() ;
 let time = 30 ;
 let intervalId = null ;
 let pointAudio = new Audio('https://arjun-g-04.github.io/delta-web/assets/ateFood.mp3') ;
@@ -25,6 +24,40 @@ savedDirection = direction ;
 let gridSelection = document.getElementById('gridSelection') ;
 gridSelection.style.display = "none" ;
 let validKeys = ["ArrowUp", "ArrowDown", "ArrowRight", "ArrowLeft"] ;
+let words = [
+    'fur',
+    'war',
+    'pay',
+    'tax',
+    'fog',
+    'buy',
+    'bet',
+    'log',
+    'cat',
+    'bad',
+    'firm',
+    'team',
+    'delta',
+    'pole',
+    'bang',
+    'time',
+    'cope',
+    'meat',
+    'lift',
+    'taste',
+    'unity',
+    'touch',
+    'NIT',
+    'fraud',
+    'tribe',
+    'swear',
+    'Trichy',
+    'crash',
+    'siege'
+] ;
+let word = "" ;
+let foods = genFood() ;
+let popUp = document.getElementById("popUp") ;
 
 // Game sequence (regulate frame rate)
 function main(ctime) {
@@ -74,10 +107,12 @@ function doesItContain(list, dict) {
 
 function genFood() {
     normFoods = [] ;
-    colours = ["grey", "yellow", "pink", "blue", "cyan"] ;
     let a = 1 ;
     let b = gridSize ;
     let i = 0 ;
+    let c = 0 ;
+    let d = words.length - 1 ;
+    word = words[Math.round(c + ((d-c)*Math.random()))] ;
     while (true) {
         loc = {x: Math.round(a+(b-a)*Math.random()), y: Math.round(a+(b-a)*Math.random())} ;
         if (doesItContain(normFoods, loc) || doesItContain(snake, loc)) {
@@ -91,15 +126,14 @@ function genFood() {
                 i++ ;
             }
         }
-        if (i === 5) {
+        if (i === word.length) {
             break ;
         }
     }
-    for (let i = 0 ; i < 5 ; i++) {
-        normFoods[i]['colour'] = colours[i] ;
+    for (let i = 0 ; i < word.length ; i++) {
+        normFoods[i]['letter'] = word[i] ;
     }
-    genFoods = normFoods.sort(() => Math.random() - 0.5) ;
-    return genFoods ;
+    return normFoods ;
 }
 
 function genPower() {
@@ -285,9 +319,11 @@ function gameEngine() {
         food = foods[i] ;
         foodElement = document.createElement('div') ;
         foodElement.classList.add('food') ;
-        foodElement.style.backgroundColor = food["colour"] ;
+        size = 0.70*(85/gridSize) ;
+        foodElement.style.fontSize = size + "vmin" ;
         foodElement.style.gridRowStart = food.y ;
         foodElement.style.gridColumnStart = food.x ;
+        foodElement.textContent= food['letter'] ;
         board.appendChild(foodElement) ;
     }
 
@@ -304,15 +340,12 @@ function gameEngine() {
         }
     }
 
-    // Display block sequence
+    // Display sequence
     sequence.innerHTML = "<div class=\"seqText\">Sequence: </div>" ;
-    for (let i = 0 ; i < foods.length ; i++) {
-        food = foods[i] ;
-        blockElement = document.createElement('div') ;
-        blockElement.classList.add("block") ;
-        blockElement.style.backgroundColor = food["colour"] ;
-        sequence.appendChild(blockElement) ;
-    }
+    blockElement = document.createElement('div') ;
+    blockElement.classList.add("word") ;
+    blockElement.textContent = word ;
+    sequence.appendChild(blockElement) ;
 
     // Display Lives
     livesElement = document.createElement('div') ;
@@ -355,7 +388,19 @@ function gameEngine() {
 }
 
 // Process the input
+let popUpShown = localStorage.getItem("popUpShown") ;
+if (popUpShown === null) {
+    localStorage.setItem("popUpShown", "false") ;
+    popUpShown = localStorage.getItem("popUpShown") ;
+} else if (popUpShown === 'true') {
+    popUp.style.display = "none" ;
+}
 window.requestAnimationFrame(main) ;
+window.addEventListener('click', e => {
+    popUp.style.display = "none" ;
+    localStorage.setItem("popUpShown", "true") ;
+    popUpShown = localStorage.getItem("popUpShown") ;
+}) ;
 pauseButton.addEventListener('click', e => {
     if (intervalId === null) {
         direction = savedDirection ;
@@ -372,50 +417,53 @@ pauseButton.addEventListener('click', e => {
 window.addEventListener('keydown', e => {
     // Starting the game
     
-    if (intervalId === null && validKeys.includes(e.key)) {
+    if (intervalId === null && validKeys.includes(e.key) && popUpShown === "true") {
         intervalId = setInterval(updateTimer, 1000) ;
         startTime = new Date() ;
         pauseButton.style.display = "block" ;
         pauseButton.innerHTML = "Pause" ;
     }
 
-    // Processing inputs
-    switch (e.key) {
-        case "ArrowUp":
-            if (direction.x === 0 && direction.y === 1) {
-                direction = {x:0, y:1} ; 
-                break ;
-            } else {
-                direction = {x:0, y:-1} ; 
-                break ;
-            }
+    console.log(popUpShown) ;
+    if (popUpShown === "true") {
+        // Processing inputs
+        switch (e.key) {
+            case "ArrowUp":
+                if (direction.x === 0 && direction.y === 1) {
+                    direction = {x:0, y:1} ; 
+                    break ;
+                } else {
+                    direction = {x:0, y:-1} ; 
+                    break ;
+                }
 
-        case "ArrowDown":
-            if (direction.x === 0 && direction.y === -1) {
-                direction = {x:0, y:-1} ; 
-                break ;
-            } else {
-                direction = {x:0, y:1} ; 
-                break ;
-            }
+            case "ArrowDown":
+                if (direction.x === 0 && direction.y === -1) {
+                    direction = {x:0, y:-1} ; 
+                    break ;
+                } else {
+                    direction = {x:0, y:1} ; 
+                    break ;
+                }
 
-        case "ArrowLeft":
-            if (direction.x === 1 && direction.y === 0) {
-                direction = {x:1, y:0} ; 
-                break ;
-            } else {
-                direction = {x:-1, y:0} ; 
-                break ;
-            }
+            case "ArrowLeft":
+                if (direction.x === 1 && direction.y === 0) {
+                    direction = {x:1, y:0} ; 
+                    break ;
+                } else {
+                    direction = {x:-1, y:0} ; 
+                    break ;
+                }
 
-        case "ArrowRight":
-            if (direction.x === -1 && direction.y === 0) {
-                direction = {x:-1, y:0} ; 
-                break ;
-            } else {
-                direction = {x:1, y:0} ; 
-                break ;
-            }
+            case "ArrowRight":
+                if (direction.x === -1 && direction.y === 0) {
+                    direction = {x:-1, y:0} ; 
+                    break ;
+                } else {
+                    direction = {x:1, y:0} ; 
+                    break ;
+                }
+        }
     }
 }) ;
 
