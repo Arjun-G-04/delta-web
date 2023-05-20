@@ -11,5 +11,5 @@ https://arjun-g-04.github.io/delta-web/
 - **Link:** https://github.com/Arjun-G-04/delta-web/tree/normal
 
 ## Hacker Mode
-- **Status:** In Progress
+- **Status:** Completed on May 20th 2023
 - **Link:** https://github.com/Arjun-G-04/delta-web/tree/hacker
