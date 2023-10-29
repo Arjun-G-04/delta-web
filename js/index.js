@@ -53,7 +53,8 @@ let words = [
     'swear',
     'Trichy',
     'crash',
-    'siege'
+    'siege',
+    'pathway'
 ] ;
 let word = "" ;
 let foods = genFood() ;
